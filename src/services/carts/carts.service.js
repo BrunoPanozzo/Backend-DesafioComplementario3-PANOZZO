@@ -1,7 +1,9 @@
 const ProductsServices = require('../products/products.service')
 const TicketsServices = require('../tickets/tickets.service')
+const SessionsServices = require('../sessions/sessions.service')
 
-const { ProductDAO, TicketDAO } = require('../../dao/factory')
+const { ProductDAO, TicketDAO, UserDAO } = require('../../dao/factory')
+const { USER_PREMIUM } = require('../../config/policies.constants')
 
 class CartsServices {
 
@@ -13,6 +15,9 @@ class CartsServices {
 
         const ticketDAO = TicketDAO()
         this.ticketsService = new TicketsServices(ticketDAO)
+
+        const userDAO = UserDAO()
+        this.sessionsService = new SessionsServices(userDAO)
     }
 
     async getCarts() {
@@ -28,7 +33,20 @@ class CartsServices {
     }
 
     async addProductToCart(cartId, prodId, quantity) {
-        return await this.dao.addProductToCart(cartId, prodId, quantity)
+        const product = await this.productsService.getProductById(prodId)
+        if (!product)
+            return false
+        const productOwner = await this.sessionsService.getUserByEmail(product.owner)
+        if (!productOwner)
+            return false
+        const cartUser = await this.sessionsService.getUserByCartId(cartId)
+        if (!cartUser) 
+            return false
+        //si el dueño del carrito es owner del producto que quiere agregar, y sigue siendo usuario PREMIUM, está prohibido
+        if ((cartUser.email == productOwner.email) && (cartUser.rol == USER_PREMIUM))
+            return false
+        else
+            return await this.dao.addProductToCart(cartId, prodId, quantity)
     }
 
     async updateCartProducts(cartId, products) {
@@ -52,9 +70,9 @@ class CartsServices {
 
         let productFromStock
         let productIdFromCart
-        let purchasedAmount = 0        
+        let purchasedAmount = 0
 
-        for (const productFromCart of cart.products) {         
+        for (const productFromCart of cart.products) {
             productIdFromCart = this.productsService.getID(productFromCart)
             productFromStock = await this.productsService.getProductById(productIdFromCart)
 

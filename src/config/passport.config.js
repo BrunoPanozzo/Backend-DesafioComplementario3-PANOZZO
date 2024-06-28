@@ -127,7 +127,6 @@ const initializeStrategy = () => {
         usernameField: 'email'
     }, async (username, password, done) => {
         try {
-
             if (!username || !password) {
                 // return res.status(400).json({ error: 'Credenciales inválidas!' })
                 return done(null, false)

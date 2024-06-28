@@ -23,7 +23,8 @@ class ProductsServices {
         code,
         stock,
         status,
-        category) {
+        category,
+        owner) {
         return await this.dao.addProduct(title,
             description,
             price,
@@ -31,7 +32,8 @@ class ProductsServices {
             code,
             stock,
             status,
-            category)
+            category,
+            owner)
     }
 
     async updateProduct(productUpdated, prodId) {

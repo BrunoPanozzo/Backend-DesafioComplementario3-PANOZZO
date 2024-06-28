@@ -4,7 +4,7 @@ const passport = require('passport')
 const passportMiddleware = require('../middlewares/passport.middleware')
 
 const SessionsController = require('../controllers/sessions.controller')
-const { PUBLIC, USER, ADMIN, SUPER_ADMIN } = require('../config/policies.constants')
+const { PUBLIC, USER, ADMIN, SUPER_ADMIN, USER_PREMIUM } = require('../config/policies.constants')
 
 const withController = callback => {
     return (req, res) => {
@@ -20,7 +20,7 @@ class SessionRouter extends BaseRouter {
 
         this.get('/faillogin', [PUBLIC], withController((controller, req, res) => controller.failLogin(req, res)))
 
-        this.post('/reset_password', [PUBLIC], passport.authenticate('reset_password', { failureRedirect: '/api/sessions/failreset_password' }), withController((controller, req, res) => controller.resetPassword(req, res)))
+        this.post('/reset_password/:token', [PUBLIC], passport.authenticate('reset_password', { failureRedirect: '/api/sessions/failreset_password' }), withController((controller, req, res) => controller.resetPassword(req, res)))
 
         this.post('/forget_password', [PUBLIC], withController((controller, req, res) => controller.forgetPassword(req, res)))
 
@@ -42,6 +42,9 @@ class SessionRouter extends BaseRouter {
         this.get('/logout', [USER, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.logout(req, res)))
 
         this.get('/current', [USER, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.current(req, res)))
+
+        this.get('/premium/:uid', [USER, USER_PREMIUM, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.changeRole(req, res)))
+
     }
 }
 

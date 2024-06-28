@@ -2,6 +2,8 @@ const CartsServices = require('../services/carts/carts.service')
 
 const { CartDAO } = require('../dao/factory')
 const { CartDTO } = require('../dao/dto/cart.dto')
+const { CustomError } = require('../services/errors/CustomError')
+const { ErrorCodes } = require('../services/errors/errorCodes')
 
 class CartsController {
 
@@ -73,9 +75,8 @@ class CartsController {
             let cartId = req.cid
             let prodId = req.pid
             let quantity = +req.body.quantity
-
+           
             const result = await this.cartsService.addProductToCart(cartId, prodId, quantity)
-
             if (result)
                 // HTTP 200 OK => carrito modificado exitosamente
                 // res.status(200).json(`Se agregaron ${quantity} producto/s con ID ${prodId} al carrito con ID ${cartId}.`)
@@ -83,7 +84,13 @@ class CartsController {
             else
                 //HTTP 400 Bad Request
                 // res.status(400).json({ error: "El servidor no pudo entender la solicitud debido a una sintaxis incorrecta." })
-                res.sendUserError("El servidor no pudo entender la solicitud debido a una sintaxis incorrecta.")
+                //res.sendUserError("El servidor no pudo entender la solicitud debido a una sintaxis incorrecta.")
+                throw CustomError.createError({
+                    name: 'InvalidAction',
+                    cause: `No se pudo agregar el producto '${prodId}' al carrito '${cartId}'.`,
+                    message: 'Error trying to add a product to a cart',
+                    code: ErrorCodes.INVALID_TYPES_ERROR
+                })
         }
         catch (err) {
             //return res.status(500).json({ message: err.message })

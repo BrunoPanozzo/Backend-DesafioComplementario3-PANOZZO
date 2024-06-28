@@ -1,7 +1,7 @@
 const { Router } = require('express')
 const jwt = require('jsonwebtoken')
-const { config } = require('dotenv')
-const { PUBLIC, SUPER_ADMIN, USER, ADMIN } = require('../config/policies.constants')
+const { SECRET } = require('../config/config')
+const { PUBLIC, SUPER_ADMIN, USER, ADMIN, USER_PREMIUM } = require('../config/policies.constants')
 
 class BaseRouter {
 
@@ -114,7 +114,10 @@ class BaseRouter {
                 return next()
 
             //habilito el siguiente caso de uso para poder probar desde POSTMAN y no tener que iniciar sesión
-            if (policies.includes(USER) || policies.includes(ADMIN) || policies.includes(SUPER_ADMIN))
+            if (policies.includes(USER) ||
+                policies.includes(USER_PREMIUM) ||
+                policies.includes(ADMIN) ||
+                policies.includes(SUPER_ADMIN))
                 return next()
             //
 
@@ -125,7 +128,7 @@ class BaseRouter {
             }
 
             const [, token] = authHeader.split(' ')
-            jwt.verify(token, config.SECRET, (err, payload) => {
+            jwt.verify(token, SECRET, (err, payload) => {
                 if (err) {
                     return res.status(403).send({ status: 'error', error: 'Token inválido.' })
                 }

@@ -1,6 +1,6 @@
 const BaseRouter = require('./router')
 
-const { userIsLoggedIn, userIsNotLoggedIn, userIsAdmin, userIsNotAdmin } = require('../middlewares/auth.middleware')
+const { userIsLoggedIn, userIsNotLoggedIn, userIsAdmin, userIsNotAdmin, userIsAdminOrPremium } = require('../middlewares/auth.middleware')
 
 const ViewsController = require('../controllers/views.controller')
 const { PUBLIC, USER, ADMIN, SUPER_ADMIN } = require('../config/policies.constants')
@@ -25,9 +25,9 @@ class ViewRouter extends BaseRouter {
 
         this.get('/carts/:cid', [USER], userIsLoggedIn, withController((controller, req, res) => controller.getCartById(req, res)))
 
-        this.get('/realtimeproducts', [ADMIN, SUPER_ADMIN], userIsLoggedIn, userIsAdmin, withController((controller, req, res) => controller.getRealTimeProducts(req, res)))
+        this.get('/realtimeproducts', [ADMIN, SUPER_ADMIN], /*userIsLoggedIn, userIsAdminOrPremium,*/ withController((controller, req, res) => controller.getRealTimeProducts(req, res)))
 
-        this.get('/products/create', [ADMIN, SUPER_ADMIN], userIsLoggedIn, userIsAdmin, withController((controller, req, res) => controller.createProduct(req, res)))
+        this.get('/products/create', [ADMIN, SUPER_ADMIN], userIsLoggedIn, userIsAdminOrPremium, withController((controller, req, res) => controller.createProduct(req, res)))
 
         //endpoints de Messages
 
@@ -39,7 +39,7 @@ class ViewRouter extends BaseRouter {
 
         this.get('/login', [PUBLIC], userIsNotLoggedIn, withController((controller, req, res) => controller.login(req, res)))
         
-        this.get('/reset_password', [PUBLIC], userIsNotLoggedIn, withController((controller, req, res) => controller.resetPassword(req, res)))
+        this.get('/reset_password/:email/token/:token', [PUBLIC], userIsNotLoggedIn, withController((controller, req, res) => controller.resetPassword(req, res)))
 
         this.get('/forget_password', [PUBLIC], userIsNotLoggedIn, withController((controller, req, res) => controller.forgetPassword(req, res)))
 

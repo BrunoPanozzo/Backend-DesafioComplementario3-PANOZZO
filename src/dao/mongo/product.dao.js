@@ -80,7 +80,8 @@ class ProductDAO {
         code,
         stock,
         status,
-        category) {
+        category,
+        owner) {
         try {
             let newProduct = await productModel.create({
                 title,
@@ -90,7 +91,8 @@ class ProductDAO {
                 code,
                 stock,
                 status,
-                category
+                category,
+                owner
             })
             return newProduct.toObject()
         }

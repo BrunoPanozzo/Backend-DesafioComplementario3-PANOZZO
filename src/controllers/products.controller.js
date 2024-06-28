@@ -2,6 +2,7 @@ const ProductsServices = require('../services/products/products.service')
 
 const { ProductDAO } = require('../dao/factory')
 const { ProductDTO } = require('../dao/dto/product.dto')
+const { ADMIN, USER_PREMIUM } = require('../config/policies.constants')
 
 class ProductsController {
 
@@ -69,28 +70,34 @@ class ProductsController {
 
     async addProduct(req, res) {
         try {
+            const user = req.session.user
             const newProduct = req.body
 
             // newProduct.thumbnail = [newProduct.thumbnail]
             newProduct.status = JSON.parse(newProduct.status)
 
-            //agregar el producto al productManager
-            await this.service.addProduct(newProduct.title,
-                newProduct.description,
-                newProduct.price,
-                newProduct.thumbnail,
-                newProduct.code,
-                newProduct.stock,
-                newProduct.status,
-                newProduct.category)
+            if (user.rol == ADMIN || user.rol == USER_PREMIUM) {
+                //agregar el producto al productManager
+                await this.service.addProduct(newProduct.title,
+                    newProduct.description,
+                    newProduct.price,
+                    newProduct.thumbnail,
+                    newProduct.code,
+                    newProduct.stock,
+                    newProduct.status,
+                    newProduct.category,
+                    user.email)
 
-            // //notificar a los demás browsers mediante WS
-            // req.app.get('io').emit('newProduct', newProduct)
+                // //notificar a los demás browsers mediante WS
+                // req.app.get('io').emit('newProduct', newProduct)
 
-            // HTTP 201 OK => producto creado exitosamente
-            // res.status(201).json(`El producto con código '${newProduct.code}' se agregó exitosamente.`)
-            res.sendCreated(`El producto con código '${newProduct.code}' se agregó exitosamente.`)
-            // res.redirect('/allProducts')
+                // HTTP 201 OK => producto creado exitosamente
+                // res.status(201).json(`El producto con código '${newProduct.code}' se agregó exitosamente.`)
+                res.sendCreated(`El producto con código '${newProduct.code}' se agregó exitosamente.`)
+                // res.redirect('/allProducts')
+            }
+            else
+                res.sendUnauthorizedError(`El usuario ${user.email} no tiene los permisos para crear productos.`)
         }
         catch (err) {
             //return res.status(500).json({ message: err.message })
@@ -100,6 +107,7 @@ class ProductsController {
 
     async updateProduct(req, res) {
         try {
+            const user = req.session.user
             const prodId = req.pid
             const productUpdated = req.body
 
@@ -112,7 +120,10 @@ class ProductsController {
                     : res.sendServerError({ message: 'Something went wrong!' })
             }
 
-            await this.service.updateProduct(productUpdated, prodId)
+            if (productActual.owner == user.email)
+                await this.service.updateProduct(productUpdated, prodId)
+            else
+                return res.sendUnauthorizedError(`El usuario ${user.email} no puede modificar el producto ${productActual.title} porque no es su owner.`)
 
             // HTTP 200 OK => producto modificado exitosamente
             // res.status(200).json(productUpdated)
@@ -126,6 +137,7 @@ class ProductsController {
 
     async deleteProduct(req, res) {
         try {
+            const user = req.session.user
             const prodId = req.pid
 
             const product = await this.service.getProductById(prodId)
@@ -136,8 +148,12 @@ class ProductsController {
                     ? res.sendNotFoundError(`El producto con código '${prodId}' no existe.`)
                     : res.sendServerError({ message: 'Something went wrong!' })
             }
+            //el owner del producto, o el usuario ADMIN, pueden unicamente borrar productos
+            if ((product.owner == user.email) || (user.rol == ADMIN))
+                await this.service.deleteProduct(prodId)
+            else
+                return res.sendUnauthorizedError(`El usuario '${user.email}' no puede borrar el producto '${product.title}' porque no es su owner.`)
 
-            await this.service.deleteProduct(prodId)
 
             // HTTP 200 OK => producto eliminado exitosamente
             // return res.status(200).json(`El producto con código '${prodId}' se eliminó exitosamente.`)

@@ -1,4 +1,4 @@
-const { ADMIN } = require("../config/policies.constants")
+const { ADMIN, USER_PREMIUM } = require("../config/policies.constants")
 
 module.exports = {
     userIsLoggedIn: (req, res, next) => {
@@ -26,9 +26,16 @@ module.exports = {
     },
     userIsNotAdmin: (req, res, next) => {
         if (req.session.user?.rol == ADMIN) {
-            return res.status(403).json({ error: 'El usuario debe ser distin al ADMIN!' })
+            return res.status(403).json({ error: 'El usuario debe ser distino al ADMIN!' })
         }
 
         next()
-    }
+    },
+    userIsAdminOrPremium: (req, res, next) => {
+        if ((req.session.user.rol != USER_PREMIUM) && (req.session.user.rol != ADMIN)) {
+            return res.status(403).json({ error: 'El usuario debe tener permisos de USER_PREMIUM o ADMIN!' })
+        }
+
+        next()
+    },
 }

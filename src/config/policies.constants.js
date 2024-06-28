@@ -3,5 +3,6 @@ module.exports = {
     // AUTHENTICATED: 'AUTHENTICATED',
     USER: 'USER',
     SUPER_ADMIN: 'SUPER_ADMIN',
+    USER_PREMIUM: 'USER_PREMIUM',
     ADMIN: 'ADMIN'
 }

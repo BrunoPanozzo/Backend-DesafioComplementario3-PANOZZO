@@ -10,15 +10,15 @@
         <a href="/profile">
             <button type="submit" class="btn btn-info text-decoration text-center">Mi Perfil</button>
         </a>
-        {{#if isNotAdmin }}
+        {{!-- {{#if isNotAdmin }} --}}
         <a href="/carts/{{user.cart}}">
             <button type="submit" class="btn btn-info text-decoration text-center">Mi Carrito</button>
         </a>
-        {{else}}
+        {{!-- {{else}} --}}
         <a href="/realtimeproducts">
             <button type="submit" class="btn btn-info text-decoration text-center">Editar mi tienda</button>
         </a>
-        {{/if}}
+        {{!-- {{/if}} --}}
         <a href="/api/sessions/logout">
             <button type="submit" class="btn btn-info text-decoration text-center">Logout</button>
         </a>

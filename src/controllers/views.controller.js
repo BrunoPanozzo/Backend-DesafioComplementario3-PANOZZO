@@ -4,7 +4,9 @@ const { generateProduct } = require('../mocks/generateProducts')
 const { generateUser } = require("../mocks/generateUsers")
 
 const { CartDAO, ProductDAO } = require('../dao/factory')
-const { ADMIN, SUPER_ADMIN } = require('../config/policies.constants')
+const { ADMIN, SUPER_ADMIN, USER_PREMIUM } = require('../config/policies.constants')
+const { CustomError } = require('../services/errors/CustomError')
+const { ErrorCodes } = require('../services/errors/errorCodes')
 
 class ViewsController {
 
@@ -20,7 +22,7 @@ class ViewsController {
             const filteredProducts = await this.productsService.getProducts(req.query)
 
             let user = req.session.user
-            let isNotAdmin = ![ADMIN, SUPER_ADMIN].includes(req.session.user.rol)
+            let isNotAdmin = ![ADMIN, USER_PREMIUM, SUPER_ADMIN].includes(req.session.user.rol)
             const data = {
                 title: 'All Products',
                 scripts: ['allProducts.js'],
@@ -63,7 +65,7 @@ class ViewsController {
                 useWS: false,
                 useSweetAlert: false,
                 product,
-                cid, 
+                cid,
                 isNotAdmin
             }
 
@@ -90,9 +92,20 @@ class ViewsController {
 
             // //agrego una unidad del producto al primer carrito que siempre existe
             // const carts = await this.cartsService.getCarts()
-            await this.cartsService.addProductToCart(user.cart, prodId, 1);
+            const result = await this.cartsService.addProductToCart(user.cart, prodId, 1);
+            if (result) {                
+                res.sendSuccess(`Se agregaron ${quantity} producto/s con ID ${prodId} al carrito con ID ${user.cart}.`)
+                this.showAlert(res, user.cart, product)
+            }
+            else
+                throw CustomError.createError({
+                    name: 'InvalidAction',
+                    cause: `No se pudo agregar el producto '${prodId}' al carrito '${user.cart}'.`,
+                    message: 'Error trying to add a product to a cart',
+                    code: ErrorCodes.INVALID_TYPES_ERROR
+                })
 
-            this.showAlert(res, user.cart, product)
+
         }
         catch (err) {
             //return res.status(500).json({ message: err.message })
@@ -116,7 +129,7 @@ class ViewsController {
                 useWS: false,
                 useSweetAlert: true,
                 product,
-                cid, 
+                cid,
                 alertMessage
             }
 
@@ -245,8 +258,12 @@ class ViewsController {
     resetPassword(req, res) {
         try {
             // sólo se puede acceder si NO está logueado
-            res.render('reset_password', {
-                title: 'Reset Password'
+            const token = req.params.token
+            const email = req.params.email
+            res.render('resetPassword', {
+                title: 'Reset Password',
+                email,
+                token
             })
         }
         catch (err) {
@@ -258,7 +275,7 @@ class ViewsController {
     forgetPassword(req, res) {
         try {
             // sólo se puede acceder si NO está logueado
-            res.render('forget_password', {
+            res.render('forgetPassword', {
                 title: 'Forget Password'
             })
         }
@@ -266,7 +283,7 @@ class ViewsController {
             //return res.status(500).json({ message: err.message })
             return res.sendServerError(err)
         }
-    }    
+    }
 
     register(req, res) {
         try {
@@ -300,7 +317,7 @@ class ViewsController {
             return res.sendServerError(err)
         }
     }
-    
+
     mockingProducts(req, res) {
         const products = []
         for (let i = 0; i < 100; i++) {
@@ -308,7 +325,7 @@ class ViewsController {
         }
         res.json(products)
     }
-    
+
     mockingUsers(req, res) {
         const users = []
         for (let i = 0; i < 100; i++) {
@@ -317,7 +334,7 @@ class ViewsController {
         res.json(users)
     }
 
-    loggerTest (req, res) {
+    loggerTest(req, res) {
         try {
             req.logger.debug('DEBUG test example')
             req.logger.http('HTTP test example')
@@ -327,7 +344,7 @@ class ViewsController {
             req.logger.fatal('FATAL test example')
             res.sendSuccess('Logger test finalizó exitosamente')
         }
-        catch(err) {
+        catch (err) {
             return res.sendServerError(err)  //{message: 'Error en el logger test'})
         }
     }

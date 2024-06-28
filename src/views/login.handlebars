@@ -8,11 +8,17 @@
         <input type="password" name="password" id="_pass" class="form-control my-2 ms-1" />
 
         <button type="submit" class="btn btn-info text-decoration text-center">Login</button>
-        <div class="my-3">
-            <a href="/api/sessions/github" class="btn btn-info text-decoration text-center">Entrar con Github</a>
-        </div>
-        <div class="my-3">
-            <a href="/api/sessions/google" class="btn btn-info text-decoration text-center">Entrar con Google</a>
-        </div>
+
+        <a href="/api/sessions/github" class="btn btn-info text-decoration text-center">Entrar con Github</a>
+
+        <a href="/api/sessions/google" class="btn btn-info text-decoration text-center">Entrar con Google</a>
     </form>
+    {{!-- <a href="/reset_password">
+        <button type="submit" class="btn btn-info text-decoration my-5 ms-5 text-center">Reset Password</button>
+    </a> --}}
+    <a href="/forget_password">
+        <button type="submit" class="btn btn-info text-decoration my-5 ms-5 text-center">Forget Password</button>
+    </a>
+
+
 </div>
