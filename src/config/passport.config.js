@@ -58,6 +58,7 @@ const initializeStrategy = () => {
                 lastName,
                 email,
                 age: + age,
+                
                 password: hashPassword(password),
                 cart: newCart
             }

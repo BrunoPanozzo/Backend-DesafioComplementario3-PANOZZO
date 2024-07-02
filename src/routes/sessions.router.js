@@ -43,7 +43,7 @@ class SessionRouter extends BaseRouter {
 
         this.get('/current', [USER, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.current(req, res)))
 
-        this.get('/premium/:uid', [USER, USER_PREMIUM, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.changeRole(req, res)))
+        this.put('/premium/:uid', [USER, USER_PREMIUM, ADMIN, SUPER_ADMIN], withController((controller, req, res) => controller.changeRole(req, res)))
 
     }
 }
