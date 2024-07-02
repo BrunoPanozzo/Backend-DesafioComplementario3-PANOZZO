@@ -92,10 +92,11 @@ class ViewsController {
 
             // //agrego una unidad del producto al primer carrito que siempre existe
             // const carts = await this.cartsService.getCarts()
-            const result = await this.cartsService.addProductToCart(user.cart, prodId, 1);
-            if (result) {                
-                res.sendSuccess(`Se agregaron ${quantity} producto/s con ID ${prodId} al carrito con ID ${user.cart}.`)
-                this.showAlert(res, user.cart, product)
+            let quantity = 1
+            const result = await this.cartsService.addProductToCart(user.cart, prodId, quantity);
+            if (result) {
+                this.showAlert(res, user.cart, product)                
+                //return res.sendSuccess(`Se agregaron ${quantity} producto/s con ID ${prodId} al carrito con ID ${user.cart}.`)
             }
             else
                 throw CustomError.createError({
@@ -104,8 +105,6 @@ class ViewsController {
                     message: 'Error trying to add a product to a cart',
                     code: ErrorCodes.INVALID_TYPES_ERROR
                 })
-
-
         }
         catch (err) {
             //return res.status(500).json({ message: err.message })

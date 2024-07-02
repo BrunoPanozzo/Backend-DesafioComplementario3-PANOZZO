@@ -94,7 +94,7 @@ const initializeStrategy = () => {
                     password: password,
                     age: 47,
                     _id: "dflksgd8sfg7sd890fg",
-                    cart: cartDAO.getID(cartDAO.addCart([])) //null
+                    cart: null
                 }
             }
             else {
