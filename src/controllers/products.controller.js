@@ -3,6 +3,7 @@ const ProductsServices = require('../services/products/products.service')
 const { ProductDAO } = require('../dao/factory')
 const { ProductDTO } = require('../dao/dto/product.dto')
 const { ADMIN, USER_PREMIUM } = require('../config/policies.constants')
+const { ADMIN_USER } = require('../config/config')
 
 class ProductsController {
 
@@ -119,8 +120,8 @@ class ProductsController {
                     ? res.sendNotFoundError(`El producto con código '${prodId}' no existe.`)
                     : res.sendServerError({ message: 'Something went wrong!' })
             }
-
-            if (productActual.owner == user.email)
+            //el owner del producto, o el usuario ADMIN, pueden unicamente actualizar productos
+            if ((productActual.owner == user.email) || (user.rol == ADMIN))
                 await this.service.updateProduct(productUpdated, prodId)
             else
                 return res.sendUnauthorizedError(`El usuario ${user.email} no puede modificar el producto ${productActual.title} porque no es su owner.`)
