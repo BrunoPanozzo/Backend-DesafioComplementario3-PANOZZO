@@ -59,3 +59,7 @@ fatal: Server error: ReferenceError: quantity is not defined
 fatal: Fatal error: Error
 fatal: Fatal error: Error
 error: Not found error: El usuario con código '66590b95ffba4ad544bb7fa7' no existe.
+fatal: Server error: InvalidAction: Error trying to add a product to a cart
+fatal: Server error: InvalidAction: Error trying to add a product to a cart
+fatal: Server error: InvalidAction: Error trying to add a product to a cart
+fatal: Server error: InvalidAction: Error trying to add a product to a cart
